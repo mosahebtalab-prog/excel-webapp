@@ -1,63 +1,265 @@
-body{
-font-family:sans-serif;
-background:#f4f6f8;
-margin:0;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.container{
-max-width:900px;
-margin:auto;
-padding:15px;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+    min-height: 100vh;
+    padding: 20px;
 }
 
-.logo{
-text-align:center;
-margin:10px 0;
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
-.logo img{
-width:120px;
-border-radius:12px;
+/* هدر و لوگو */
+header {
+    margin-bottom: 30px;
+    border-bottom: 2px solid #f06292;
+    padding-bottom: 20px;
 }
 
-.card{
-background:white;
-padding:15px;
-margin:15px 0;
-border-radius:12px;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
-.summary{
-background:#2ecc71;
-color:white;
-text-align:center;
+.logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #f06292;
 }
 
-input,textarea{
-width:100%;
-padding:10px;
-margin:5px 0;
-border:1px solid #ddd;
-border-radius:8px;
+h1 {
+    color: #880e4f;
+    font-size: 28px;
 }
 
-button{
-width:100%;
-padding:10px;
-background:#3498db;
-color:white;
-border:none;
-border-radius:8px;
+h2 {
+    color: #ad1457;
+    font-size: 20px;
+    font-weight: normal;
 }
 
-table{
-width:100%;
-border-collapse:collapse;
+h3 {
+    color: #880e4f;
+    font-size: 20px;
+    margin: 20px 0 15px 0;
 }
 
-th,td{
-padding:8px;
-border-bottom:1px solid #ddd;
-text-align:center;
+h4 {
+    color: #ad1457;
+    font-size: 18px;
+    margin: 15px 0 10px 0;
+}
+
+/* دکمه بازگشت */
+.back-link {
+    display: inline-block;
+    background: #f06292;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+}
+
+.back-link:hover {
+    background: #d81b60;
+    transform: translateX(-5px);
+}
+
+/* درآمد کل */
+.total-income {
+    background: linear-gradient(135deg, #f06292, #d81b60);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 15px;
+    font-size: 20px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.total-income span {
+    font-size: 26px;
+    font-weight: bold;
+}
+
+/* بخش‌ها */
+section {
+    background: #fce4ec;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+}
+
+/* فرم‌ها */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+input[type="text"],
+input[type="number"] {
+    flex: 1;
+    min-width: 150px;
+    padding: 10px 15px;
+    border: 2px solid #f8bbd0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+input:focus {
+    outline: none;
+    border-color: #d81b60;
+    box-shadow: 0 0 10px rgba(216, 27, 96, 0.2);
+}
+
+button, .btn-report, .btn-submit {
+    background: #d81b60;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+button:hover, .btn-report:hover, .btn-submit:hover {
+    background: #880e4f;
+    transform: scale(1.05);
+}
+
+.btn-report {
+    background: #7b1fa2;
+}
+
+.btn-report:hover {
+    background: #4a148c;
+}
+
+.btn-submit {
+    background: #2e7d32;
+    width: fit-content;
+    padding: 10px 40px;
+}
+
+.btn-submit:hover {
+    background: #1b5e20;
+}
+
+/* جدول‌ها */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th {
+    background: #880e4f;
+    color: white;
+    padding: 12px;
+    text-align: right;
+}
+
+td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f8bbd0;
+}
+
+tr:hover {
+    background: #fce4ec;
+}
+
+td a {
+    color: #d81b60;
+    text-decoration: none;
+    font-size: 20px;
+    transition: all 0.3s;
+}
+
+td a:hover {
+    color: #880e4f;
+    transform: scale(1.2);
+    display: inline-block;
+}
+
+/* اطلاعات بیمار در پروفایل */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.info-grid div {
+    background: white;
+    padding: 10px 15px;
+    border-radius: 10px;
+    border-right: 4px solid #d81b60;
+}
+
+.info-grid strong {
+    color: #880e4f;
+}
+
+/* پیام بدون داده */
+.no-data {
+    text-align: center;
+    color: #888;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+}
+
+/* پاسخگو */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .logo-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    input[type="text"],
+    input[type="number"] {
+        width: 100%;
+    }
+    
+    table {
+        font-size: 14px;
+    }
+    
+    th, td {
+        padding: 8px;
+    }
 }

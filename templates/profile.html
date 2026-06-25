@@ -1,34 +1,78 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<title>پروفایل بیمار</title>
-<link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پروفایل بیمار - درمانکده سنتی بانوان</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
+    <div class="container">
+        <header>
+            <a href="{{ url_for('index') }}" class="back-link">← بازگشت به صفحه اصلی</a>
+            <h1>👤 پروفایل بیمار</h1>
+        </header>
 
-<div class="container">
+        <!-- اطلاعات بیمار -->
+        <section class="patient-info">
+            <h3>اطلاعات بیمار</h3>
+            <div class="info-grid">
+                <div><strong>نام:</strong> {{ patient.name }}</div>
+                <div><strong>تلفن:</strong> {{ patient.phone }}</div>
+                <div><strong>بیماری:</strong> {{ patient.disease }}</div>
+                <div><strong>تاریخ ثبت:</strong> {{ patient.created_at }}</div>
+            </div>
+        </section>
 
-<div class="card summary">
-<h2>👤 پروفایل بیمار</h2>
-</div>
+        <!-- ثبت ویزیت جدید با فیلد عملیات یا نسخه -->
+        <section class="add-visit">
+            <h3>➕ ثبت ویزیت جدید</h3>
+            <form action="{{ url_for('add_visit') }}" method="POST">
+                <input type="hidden" name="patient_id" value="{{ patient.id }}">
+                <div class="form-group">
+                    <div class="form-row">
+                        <input type="text" name="visit_date" placeholder="📅 تاریخ ویزیت (مثال: 1405/04/01)" required>
+                        <input type="text" name="reason" placeholder="❓ علت مراجعه" required>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" name="treatment" placeholder="💊 عملیات یا نسخه انجام شده" required>
+                        <input type="number" name="cost" placeholder="💰 هزینه پرداختی (تومان)" required>
+                    </div>
+                    <button type="submit" class="btn-submit">✅ ثبت ویزیت</button>
+                </div>
+            </form>
+        </section>
 
-<div class="card">
-
-<p><b>نام:</b> {{p.name}}</p>
-<p><b>سن:</b> {{p.age}}</p>
-<p><b>تلفن:</b> {{p.phone}}</p>
-<p><b>بیماری:</b> {{p.disease}}</p>
-<p><b>تاریخ:</b> {{p.visit_date}}</p>
-<p><b>یادداشت:</b> {{p.visit_note}}</p>
-<p><b>هزینه:</b> {{p.fee}}</p>
-
-</div>
-
-<a href="/">⬅ بازگشت</a>
-
-</div>
-
+        <!-- لیست ویزیت‌ها -->
+        <section class="visits-list">
+            <h3>📋 تاریخچه ویزیت‌ها</h3>
+            {% if visits %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>تاریخ</th>
+                        <th>علت مراجعه</th>
+                        <th>عملیات/نسخه</th>
+                        <th>هزینه (تومان)</th>
+                        <th>حذف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visit in visits %}
+                    <tr>
+                        <td>{{ visit.visit_date }}</td>
+                        <td>{{ visit.reason }}</td>
+                        <td>{{ visit.treatment }}</td>
+                        <td>{{ visit.cost }}</td>
+                        <td><a href="{{ url_for('delete_visit', visit_id=visit.id, patient_id=patient.id) }}" onclick="return confirm('آیا مطمئن هستید؟')">🗑</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-data">هیچ ویزیتی برای این بیمار ثبت نشده است.</p>
+            {% endif %}
+        </section>
+    </div>
 </body>
 </html>
