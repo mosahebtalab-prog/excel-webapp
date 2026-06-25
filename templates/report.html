@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>گزارش بیماران</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card summary">
+<h2>📋 گزارش کامل بیماران</h2>
+<h3>{{ clinic }}</h3>
+</div>
+
+<div class="card">
+
+<table>
+<tr>
+<th>نام</th>
+<th>سن</th>
+<th>تلفن</th>
+<th>بیماری</th>
+<th>تاریخ</th>
+<th>هزینه</th>
+</tr>
+
+{% for p in patients %}
+<tr>
+<td>{{p.name}}</td>
+<td>{{p.age}}</td>
+<td>{{p.phone}}</td>
+<td>{{p.disease}}</td>
+<td>{{p.visit_date}}</td>
+<td>{{p.fee}}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+</div>
+
+<a href="/">⬅ بازگشت</a>
+
+</div>
+
+</body>
+</html>
