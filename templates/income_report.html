@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گزارش درآمد - درمانکده سنتی بانوان</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="{{ url_for('index') }}" class="back-link">← بازگشت به صفحه اصلی</a>
+            <h1>📊 گزارش درآمد بازه‌ای</h1>
+        </header>
+
+        <!-- فرم انتخاب بازه زمانی -->
+        <section class="income-filter">
+            <h3>انتخاب بازه زمانی (تاریخ شمسی)</h3>
+            <form method="POST" action="{{ url_for('income_report') }}">
+                <div class="form-row">
+                    <input type="text" name="start_date" placeholder="از تاریخ (مثال: 1405/01/01)" value="{{ start_date }}" required>
+                    <input type="text" name="end_date" placeholder="تا تاریخ (مثال: 1405/12/29)" value="{{ end_date }}" required>
+                    <button type="submit">نمایش گزارش</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- نمایش نتایج -->
+        <section class="income-result">
+            <h3>نتایج گزارش</h3>
+            <div class="total-income">
+                <p>💰 درآمد کل در بازه انتخاب‌شده: <span>{{ total_income|default(0) }}</span> تومان</p>
+            </div>
+
+            {% if visits %}
+            <h4>لیست ویزیت‌ها در این بازه</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>تاریخ</th>
+                        <th>علت مراجعه</th>
+                        <th>عملیات/نسخه</th>
+                        <th>هزینه (تومان)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visit in visits %}
+                    <tr>
+                        <td>{{ visit.visit_date }}</td>
+                        <td>{{ visit.reason }}</td>
+                        <td>{{ visit.treatment }}</td>
+                        <td>{{ visit.cost }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% elif start_date and end_date %}
+            <p class="no-data">هیچ ویزیتی در این بازه زمانی ثبت نشده است.</p>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>

@@ -1,80 +1,74 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<title>{{ clinic }}</title>
-<link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>درمانکده سنتی بانوان</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
+    <div class="container">
+        <!-- هدر با لوگو -->
+        <header>
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='logo.jpg') }}" alt="لوگو درمانکده" class="logo">
+                <div>
+                    <h1>🏥 درمانکده سنتی بانوان</h1>
+                    <h2>👩⚕️ هاله رستمی</h2>
+                </div>
+            </div>
+        </header>
 
-<div class="container">
+        <!-- درآمد کل -->
+        <div class="total-income">
+            <p>💰 درآمد کل: <span>{{ total_income|default(0) }}</span> تومان</p>
+        </div>
 
-<!-- LOGO -->
-<div class="logo">
-    <img src="/logo.jpg" alt="logo">
-</div>
+        <!-- بخش ثبت بیمار -->
+        <section class="add-patient">
+            <h3>➕ ثبت بیمار</h3>
+            <form action="{{ url_for('add_patient') }}" method="POST">
+                <div class="form-row">
+                    <input type="text" name="name" placeholder="نام بیمار" required>
+                    <input type="text" name="phone" placeholder="شماره تلفن">
+                    <input type="text" name="disease" placeholder="بیماری">
+                    <button type="submit">ثبت بیمار</button>
+                </div>
+            </form>
+        </section>
 
-<h1>🏥 {{ clinic }}</h1>
-<h3>👩‍⚕️ {{ doctor }}</h3>
+        <!-- گزارش درآمد -->
+        <section class="income-report-section">
+            <h3>📊 گزارش درآمد بازه‌ای</h3>
+            <a href="{{ url_for('income_report') }}" class="btn-report">ورود به صفحه گزارش درآمد</a>
+        </section>
 
-<div class="card summary">
-💰 درآمد کل: {{ income }} تومان
-</div>
-
-<!-- ثبت بیمار -->
-<div class="card">
-<h2>➕ ثبت بیمار</h2>
-
-<form method="POST" action="/add">
-<input name="name" placeholder="نام">
-<input name="age" placeholder="سن">
-<input name="phone" placeholder="تلفن (کلید یکتا)">
-<input name="disease" placeholder="بیماری">
-<textarea name="visit_note" placeholder="یادداشت"></textarea>
-<input name="fee" placeholder="هزینه">
-<button>ثبت</button>
-</form>
-</div>
-
-<!-- گزارش -->
-<div class="card">
-<h2>📊 گزارش درآمد بازه‌ای</h2>
-<form action="/report_income" method="get" target="_blank">
-<input name="start" placeholder="از تاریخ (شمسی YYYY-MM-DD)">
-<input name="end" placeholder="تا تاریخ (شمسی YYYY-MM-DD)">
-<button>محاسبه</button>
-</form>
-</div>
-
-<!-- بیماران -->
-<div class="card">
-<h2>👥 بیماران</h2>
-
-<table>
-<tr>
-<th>نام</th>
-<th>تلفن</th>
-<th>بیماری</th>
-<th>پروفایل</th>
-<th>حذف</th>
-</tr>
-
-{% for p in patients %}
-<tr>
-<td>{{p.name}}</td>
-<td>{{p.phone}}</td>
-<td>{{p.disease}}</td>
-<td><a href="/profile/{{p.phone}}">👁</a></td>
-<td><a href="/delete/{{p.id}}">🗑</a></td>
-</tr>
-{% endfor %}
-
-</table>
-
-</div>
-
-</div>
-
+        <!-- لیست بیماران -->
+        <section class="patients-list">
+            <h3>👥 بیماران</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>نام</th>
+                        <th>تلفن</th>
+                        <th>بیماری</th>
+                        <th>پروفایل</th>
+                        <th>حذف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients %}
+                    <tr>
+                        <td>{{ patient.name }}</td>
+                        <td>{{ patient.phone }}</td>
+                        <td>{{ patient.disease }}</td>
+                        <td><a href="{{ url_for('profile', patient_id=patient.id) }}">👁</a></td>
+                        <td><a href="{{ url_for('delete_patient', patient_id=patient.id) }}" onclick="return confirm('آیا مطمئن هستید؟')">🗑</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
 </body>
 </html>

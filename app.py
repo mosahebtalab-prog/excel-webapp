@@ -1,168 +1,278 @@
-from flask import Flask, render_template, request, redirect
-import pandas as pd
+from flask import Flask, render_template, request, redirect, url_for, session
+import openpyxl
+from openpyxl import load_workbook
 import os
-from datetime import date
+from datetime import datetime
+import json
 import jdatetime
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'
 
-FILE = "data.xlsx"
+# مسیر فایل اکسل
+EXCEL_FILE = 'data.xlsx'
 
-CLINIC_NAME = "درمانکده سنتی بانوان"
-DOCTOR_NAME = "هاله رستمی"
+# تابع برای اطمینان از وجود فایل اکسل و ایجاد آن در صورت نیاز
+def ensure_excel_file():
+    if not os.path.exists(EXCEL_FILE):
+        wb = openpyxl.Workbook()
+        
+        # برگه بیماران
+        ws_patients = wb.active
+        ws_patients.title = 'patients'
+        ws_patients.append(['id', 'name', 'phone', 'disease', 'created_at'])
+        
+        # برگه ویزیت‌ها (با ستون جدید treatment)
+        ws_visits = wb.create_sheet('visits')
+        ws_visits.append(['id', 'patient_id', 'visit_date', 'reason', 'treatment', 'cost', 'created_at'])
+        
+        # برگه درآمد
+        ws_income = wb.create_sheet('income')
+        ws_income.append(['id', 'patient_id', 'amount', 'date', 'description'])
+        
+        wb.save(EXCEL_FILE)
 
+# تابع برای دریافت تمام بیماران
+def get_all_patients():
+    wb = load_workbook(EXCEL_FILE)
+    ws = wb['patients']
+    patients = []
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row[0] is not None:
+            patients.append({
+                'id': row[0],
+                'name': row[1] or '',
+                'phone': row[2] or '',
+                'disease': row[3] or '',
+                'created_at': row[4] or ''
+            })
+    wb.close()
+    return patients
 
-# =========================
-# ساخت فایل اکسل
-# =========================
-def init_file():
-    if not os.path.exists(FILE):
-        df = pd.DataFrame(columns=[
-            "id","name","age","phone",
-            "disease","visit_date",
-            "visit_note","fee"
-        ])
-        df.to_excel(FILE, index=False)
+# تابع برای دریافت ویزیت‌های یک بیمار
+def get_patient_visits(patient_id):
+    wb = load_workbook(EXCEL_FILE)
+    ws = wb['visits']
+    visits = []
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row[0] is not None and row[1] == int(patient_id):
+            visits.append({
+                'id': row[0],
+                'patient_id': row[1],
+                'visit_date': row[2] or '',
+                'reason': row[3] or '',
+                'treatment': row[4] or '',
+                'cost': row[5] or 0,
+                'created_at': row[6] or ''
+            })
+    wb.close()
+    return visits
 
-init_file()
+# تابع برای دریافت اطلاعات یک بیمار
+def get_patient_by_id(patient_id):
+    wb = load_workbook(EXCEL_FILE)
+    ws = wb['patients']
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row[0] == int(patient_id):
+            wb.close()
+            return {
+                'id': row[0],
+                'name': row[1] or '',
+                'phone': row[2] or '',
+                'disease': row[3] or '',
+                'created_at': row[4] or ''
+            }
+    wb.close()
+    return None
 
+# تابع برای محاسبه درآمد کل
+def get_total_income():
+    wb = load_workbook(EXCEL_FILE)
+    ws = wb['visits']
+    total = 0
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row[0] is not None and row[5] is not None:
+            try:
+                total += int(row[5])
+            except:
+                pass
+    wb.close()
+    return total
 
-def read():
-    return pd.read_excel(FILE)
-
-
-def save(df):
-    temp = "temp.xlsx"
-    df.to_excel(temp, index=False)
-    os.replace(temp, FILE)
-
-
-# =========================
-# تبدیل به شمسی
-# =========================
-def to_jalali(g_date):
+# تابع برای محاسبه درآمد در بازه زمانی
+def get_income_by_date_range(start_date, end_date):
+    wb = load_workbook(EXCEL_FILE)
+    ws = wb['visits']
+    total = 0
+    visits = []
+    
     try:
-        dt = pd.to_datetime(g_date)
-        return str(jdatetime.date.fromgregorian(date=dt.date()))
+        start_jd = jdatetime.datetime.strptime(start_date, '%Y/%m/%d')
+        end_jd = jdatetime.datetime.strptime(end_date, '%Y/%m/%d')
     except:
-        return g_date
+        return 0, []
+    
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row[0] is not None and row[2] is not None:
+            try:
+                visit_date = row[2]
+                if '/' in visit_date:
+                    visit_jd = jdatetime.datetime.strptime(visit_date, '%Y/%m/%d')
+                    if start_jd <= visit_jd <= end_jd:
+                        cost = int(row[5]) if row[5] else 0
+                        total += cost
+                        visits.append({
+                            'id': row[0],
+                            'patient_id': row[1],
+                            'visit_date': visit_date,
+                            'reason': row[3] or '',
+                            'treatment': row[4] or '',
+                            'cost': cost
+                        })
+            except:
+                pass
+    
+    wb.close()
+    return total, visits
 
-
-# =========================
-# صفحه اصلی
-# =========================
-@app.route("/")
+# مسیر اصلی
+@app.route('/')
 def index():
-    df = read()
+    ensure_excel_file()
+    patients = get_all_patients()
+    total_income = get_total_income()
+    return render_template('index.html', patients=patients, total_income=total_income)
 
-    if not df.empty:
-        df["visit_date"] = df["visit_date"].apply(to_jalali)
+# مسیر ثبت بیمار جدید
+@app.route('/add_patient', methods=['POST'])
+def add_patient():
+    name = request.form.get('name', '').strip()
+    phone = request.form.get('phone', '').strip()
+    disease = request.form.get('disease', '').strip()
+    
+    if not name:
+        return redirect(url_for('index'))
+    
+    wb = load_workbook(EXCEL_FILE)
+    ws = wb['patients']
+    
+    # پیدا کردن آخرین ID
+    max_id = 0
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row[0] is not None and row[0] > max_id:
+            max_id = row[0]
+    
+    new_id = max_id + 1
+    now = jdatetime.datetime.now().strftime('%Y/%m/%d %H:%M')
+    
+    ws.append([new_id, name, phone, disease, now])
+    wb.save(EXCEL_FILE)
+    wb.close()
+    
+    return redirect(url_for('index'))
 
-    income = df["fee"].sum() if not df.empty else 0
+# مسیر حذف بیمار
+@app.route('/delete_patient/<int:patient_id>')
+def delete_patient(patient_id):
+    wb = load_workbook(EXCEL_FILE)
+    ws = wb['patients']
+    
+    # پیدا کردن ردیف بیمار
+    row_to_delete = None
+    for idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+        if row[0] == patient_id:
+            row_to_delete = idx
+            break
+    
+    if row_to_delete:
+        ws.delete_rows(row_to_delete)
+    
+    wb.save(EXCEL_FILE)
+    wb.close()
+    
+    return redirect(url_for('index'))
 
-    return render_template(
-        "index.html",
-        patients=df.to_dict(orient="records"),
-        clinic=CLINIC_NAME,
-        doctor=DOCTOR_NAME,
-        income=income
-    )
+# مسیر پروفایل بیمار
+@app.route('/profile/<int:patient_id>')
+def profile(patient_id):
+    patient = get_patient_by_id(patient_id)
+    if not patient:
+        return redirect(url_for('index'))
+    
+    visits = get_patient_visits(patient_id)
+    return render_template('profile.html', patient=patient, visits=visits)
 
+# مسیر ثبت ویزیت جدید (با فیلد treatment)
+@app.route('/add_visit', methods=['POST'])
+def add_visit():
+    patient_id = request.form.get('patient_id', '').strip()
+    visit_date = request.form.get('visit_date', '').strip()
+    reason = request.form.get('reason', '').strip()
+    treatment = request.form.get('treatment', '').strip()
+    cost = request.form.get('cost', '').strip()
+    
+    if not patient_id or not visit_date:
+        return redirect(url_for('index'))
+    
+    wb = load_workbook(EXCEL_FILE)
+    ws = wb['visits']
+    
+    # پیدا کردن آخرین ID
+    max_id = 0
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row[0] is not None and row[0] > max_id:
+            max_id = row[0]
+    
+    new_id = max_id + 1
+    now = jdatetime.datetime.now().strftime('%Y/%m/%d %H:%M')
+    
+    ws.append([new_id, int(patient_id), visit_date, reason, treatment, int(cost) if cost else 0, now])
+    wb.save(EXCEL_FILE)
+    wb.close()
+    
+    return redirect(url_for('profile', patient_id=patient_id))
 
-# =========================
-# ثبت بیمار (با جلوگیری از تکرار)
-# =========================
-@app.route("/add", methods=["POST"])
-def add():
-    df = read()
+# مسیر حذف ویزیت
+@app.route('/delete_visit/<int:visit_id>/<int:patient_id>')
+def delete_visit(visit_id, patient_id):
+    wb = load_workbook(EXCEL_FILE)
+    ws = wb['visits']
+    
+    # پیدا کردن ردیف ویزیت
+    row_to_delete = None
+    for idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+        if row[0] == visit_id:
+            row_to_delete = idx
+            break
+    
+    if row_to_delete:
+        ws.delete_rows(row_to_delete)
+    
+    wb.save(EXCEL_FILE)
+    wb.close()
+    
+    return redirect(url_for('profile', patient_id=patient_id))
 
-    phone = request.form["phone"]
+# مسیر گزارش درآمد
+@app.route('/income_report', methods=['GET', 'POST'])
+def income_report():
+    total_income = 0
+    visits = []
+    start_date = ''
+    end_date = ''
+    
+    if request.method == 'POST':
+        start_date = request.form.get('start_date', '').strip()
+        end_date = request.form.get('end_date', '').strip()
+        
+        if start_date and end_date:
+            total_income, visits = get_income_by_date_range(start_date, end_date)
+    
+    return render_template('income_report.html', 
+                         total_income=total_income, 
+                         visits=visits, 
+                         start_date=start_date, 
+                         end_date=end_date)
 
-    # 🚫 جلوگیری از بیمار تکراری
-    if not df.empty and phone in df["phone"].astype(str).values:
-        return "<h2>❌ این بیمار قبلاً ثبت شده است (شماره تکراری)</h2><a href='/'>بازگشت</a>"
-
-    new_id = 1 if df.empty else int(df["id"].max()) + 1
-
-    new_row = {
-        "id": new_id,
-        "name": request.form["name"],
-        "age": request.form["age"],
-        "phone": phone,
-        "disease": request.form["disease"],
-        "visit_date": str(date.today()),
-        "visit_note": request.form["visit_note"],
-        "fee": float(request.form["fee"])
-    }
-
-    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-    save(df)
-
-    return redirect("/")
-
-
-# =========================
-# پروفایل بیمار
-# =========================
-@app.route("/profile/<phone>")
-def profile(phone):
-    df = read()
-
-    patient = df[df["phone"].astype(str) == str(phone)]
-
-    if patient.empty:
-        return "<h2>بیمار یافت نشد</h2><a href='/'>بازگشت</a>"
-
-    patient = patient.iloc[0].to_dict()
-
-    patient["visit_date"] = to_jalali(patient["visit_date"])
-
-    return render_template("profile.html", p=patient)
-
-
-# =========================
-# حذف بیمار
-# =========================
-@app.route("/delete/<int:id>")
-def delete(id):
-    df = read()
-    df = df[df["id"] != id]
-    save(df)
-    return redirect("/")
-
-
-# =========================
-# گزارش درآمد بازه‌ای (شمسی)
-# =========================
-@app.route("/report_income")
-def report_income():
-    start = request.args.get("start")
-    end = request.args.get("end")
-
-    df = read()
-
-    df["visit_date"] = pd.to_datetime(df["visit_date"], errors="coerce")
-
-    if start and end:
-        start_g = jdatetime.date(*map(int, start.split("-"))).togregorian()
-        end_g = jdatetime.date(*map(int, end.split("-"))).togregorian()
-
-        df = df[
-            (df["visit_date"] >= start_g) &
-            (df["visit_date"] <= end_g)
-        ]
-
-    income = df["fee"].sum() if not df.empty else 0
-
-    return f"""
-    <div style="font-family:sans-serif;text-align:center;margin-top:50px">
-        <h2>📊 گزارش درآمد</h2>
-        <p>از {start} تا {end}</p>
-        <h1>{income} تومان</h1>
-        <a href='/'>بازگشت</a>
-    </div>
-    """
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000, debug=True)
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
