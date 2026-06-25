@@ -1,5 +1,0 @@
-excel-webapp/
-│── app.py
-│── requirements.txt
-│── data.xlsx
-│── templates/

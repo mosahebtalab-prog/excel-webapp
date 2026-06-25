@@ -1,37 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="fa" dir="rtl">
 <head>
-    <title>Excel Web App</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ clinic }}</title>
+<link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
 
-<h2>ثبت داده ها</h2>
+<div class="container">
 
+<h1>🏥 {{ clinic }}</h1>
+<h3>👩‍⚕️ {{ doctor }}</h3>
+
+<div class="card summary">
+💰 درآمد کل: {{ income }} تومان
+</div>
+
+<!-- ثبت -->
+<div class="card">
+<h2>➕ ثبت بیمار</h2>
 <form method="POST" action="/add">
-    <input name="name" placeholder="نام">
-    <input name="phone" placeholder="تلفن">
-    <button type="submit">ثبت</button>
+<input name="name" placeholder="نام">
+<input name="age" placeholder="سن">
+<input name="phone" placeholder="تلفن">
+<input name="disease" placeholder="بیماری">
+<textarea name="visit_note" placeholder="یادداشت"></textarea>
+<input name="fee" placeholder="هزینه">
+<button>ثبت</button>
 </form>
+</div>
 
-<hr>
+<!-- گزارش درآمد -->
+<div class="card">
+<h2>📊 گزارش درآمد بازه‌ای</h2>
+<form action="/report_income" method="get" target="_blank">
+<input name="start" placeholder="از تاریخ (YYYY-MM-DD)">
+<input name="end" placeholder="تا تاریخ (YYYY-MM-DD)">
+<button>محاسبه</button>
+</form>
+</div>
 
-<h3>لیست داده‌ها</h3>
+<!-- گزارش بیماران -->
+<div class="card">
+<h2>👥 گزارش کامل بیماران</h2>
+<a href="/report_all" target="_blank">مشاهده همه بیماران</a>
+</div>
 
-<table border="1">
-    <tr>
-        <th>ID</th>
-        <th>نام</th>
-        <th>تلفن</th>
-    </tr>
+<!-- جدول -->
+<div class="card">
+<h2>📋 بیماران</h2>
 
-    {% for row in data %}
-    <tr>
-        <td>{{ row.id }}</td>
-        <td>{{ row.name }}</td>
-        <td>{{ row.phone }}</td>
-    </tr>
-    {% endfor %}
+<table>
+<tr>
+<th>نام</th>
+<th>بیماری</th>
+<th>تاریخ</th>
+<th>هزینه</th>
+<th>عملیات</th>
+</tr>
+
+{% for p in patients %}
+<tr>
+<td>{{p.name}}</td>
+<td>{{p.disease}}</td>
+<td>{{p.visit_date}}</td>
+<td>{{p.fee}}</td>
+<td><a href="/delete/{{p.id}}">🗑</a></td>
+</tr>
+{% endfor %}
+
 </table>
+
+</div>
+
+</div>
 
 </body>
 </html>
