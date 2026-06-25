@@ -12,9 +12,9 @@ CLINIC_NAME = "درمانکده سنتی بانوان"
 DOCTOR_NAME = "هاله رستمی"
 
 
-# =====================
+# =========================
 # ساخت فایل اکسل
-# =====================
+# =========================
 def init_file():
     if not os.path.exists(FILE):
         df = pd.DataFrame(columns=[
@@ -37,9 +37,9 @@ def save(df):
     os.replace(temp, FILE)
 
 
-# =====================
-# تبدیل تاریخ به شمسی
-# =====================
+# =========================
+# تبدیل به شمسی
+# =========================
 def to_jalali(g_date):
     try:
         dt = pd.to_datetime(g_date)
@@ -48,9 +48,9 @@ def to_jalali(g_date):
         return g_date
 
 
-# =====================
+# =========================
 # صفحه اصلی
-# =====================
+# =========================
 @app.route("/")
 def index():
     df = read()
@@ -69,12 +69,18 @@ def index():
     )
 
 
-# =====================
-# ثبت بیمار
-# =====================
+# =========================
+# ثبت بیمار (با جلوگیری از تکرار)
+# =========================
 @app.route("/add", methods=["POST"])
 def add():
     df = read()
+
+    phone = request.form["phone"]
+
+    # 🚫 جلوگیری از بیمار تکراری
+    if not df.empty and phone in df["phone"].astype(str).values:
+        return "<h2>❌ این بیمار قبلاً ثبت شده است (شماره تکراری)</h2><a href='/'>بازگشت</a>"
 
     new_id = 1 if df.empty else int(df["id"].max()) + 1
 
@@ -82,7 +88,7 @@ def add():
         "id": new_id,
         "name": request.form["name"],
         "age": request.form["age"],
-        "phone": request.form["phone"],
+        "phone": phone,
         "disease": request.form["disease"],
         "visit_date": str(date.today()),
         "visit_note": request.form["visit_note"],
@@ -95,9 +101,28 @@ def add():
     return redirect("/")
 
 
-# =====================
+# =========================
+# پروفایل بیمار
+# =========================
+@app.route("/profile/<phone>")
+def profile(phone):
+    df = read()
+
+    patient = df[df["phone"].astype(str) == str(phone)]
+
+    if patient.empty:
+        return "<h2>بیمار یافت نشد</h2><a href='/'>بازگشت</a>"
+
+    patient = patient.iloc[0].to_dict()
+
+    patient["visit_date"] = to_jalali(patient["visit_date"])
+
+    return render_template("profile.html", p=patient)
+
+
+# =========================
 # حذف بیمار
-# =====================
+# =========================
 @app.route("/delete/<int:id>")
 def delete(id):
     df = read()
@@ -106,26 +131,9 @@ def delete(id):
     return redirect("/")
 
 
-# =====================
-# گزارش کامل بیماران (همه اطلاعات)
-# =====================
-@app.route("/report_all")
-def report_all():
-    df = read()
-
-    if not df.empty:
-        df["visit_date"] = df["visit_date"].apply(to_jalali)
-
-    return render_template(
-        "report.html",
-        patients=df.to_dict(orient="records"),
-        clinic=CLINIC_NAME
-    )
-
-
-# =====================
-# گزارش درآمد در بازه تاریخی
-# =====================
+# =========================
+# گزارش درآمد بازه‌ای (شمسی)
+# =========================
 @app.route("/report_income")
 def report_income():
     start = request.args.get("start")
@@ -133,20 +141,24 @@ def report_income():
 
     df = read()
 
+    df["visit_date"] = pd.to_datetime(df["visit_date"], errors="coerce")
+
     if start and end:
+        start_g = jdatetime.date(*map(int, start.split("-"))).togregorian()
+        end_g = jdatetime.date(*map(int, end.split("-"))).togregorian()
+
         df = df[
-            (df["visit_date"] >= start) &
-            (df["visit_date"] <= end)
+            (df["visit_date"] >= start_g) &
+            (df["visit_date"] <= end_g)
         ]
 
     income = df["fee"].sum() if not df.empty else 0
 
     return f"""
-    <div style='font-family:sans-serif;text-align:center;margin-top:50px'>
+    <div style="font-family:sans-serif;text-align:center;margin-top:50px">
         <h2>📊 گزارش درآمد</h2>
         <p>از {start} تا {end}</p>
         <h1>{income} تومان</h1>
-        <br>
         <a href='/'>بازگشت</a>
     </div>
     """
