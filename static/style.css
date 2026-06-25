@@ -10,6 +10,16 @@ margin:auto;
 padding:15px;
 }
 
+.logo{
+text-align:center;
+margin:10px 0;
+}
+
+.logo img{
+width:120px;
+border-radius:12px;
+}
+
 .card{
 background:white;
 padding:15px;
