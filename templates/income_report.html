@@ -13,27 +13,25 @@
             <h1>📊 گزارش درآمد بازه‌ای</h1>
         </header>
 
-        <!-- فرم انتخاب بازه زمانی -->
         <section class="income-filter">
-            <h3>انتخاب بازه زمانی (تاریخ شمسی)</h3>
+            <h3>📅 انتخاب بازه زمانی (تاریخ شمسی)</h3>
             <form method="POST" action="{{ url_for('income_report') }}">
                 <div class="form-row">
                     <input type="text" name="start_date" placeholder="از تاریخ (مثال: 1405/01/01)" value="{{ start_date }}" required>
                     <input type="text" name="end_date" placeholder="تا تاریخ (مثال: 1405/12/29)" value="{{ end_date }}" required>
-                    <button type="submit">نمایش گزارش</button>
+                    <button type="submit">🔍 نمایش گزارش</button>
                 </div>
             </form>
         </section>
 
-        <!-- نمایش نتایج -->
         <section class="income-result">
-            <h3>نتایج گزارش</h3>
+            <h3>📈 نتایج گزارش</h3>
             <div class="total-income">
                 <p>💰 درآمد کل در بازه انتخاب‌شده: <span>{{ total_income|default(0) }}</span> تومان</p>
             </div>
 
             {% if visits %}
-            <h4>لیست ویزیت‌ها در این بازه</h4>
+            <h4>📋 لیست ویزیت‌ها در این بازه</h4>
             <table>
                 <thead>
                     <tr>
@@ -55,7 +53,7 @@
                 </tbody>
             </table>
             {% elif start_date and end_date %}
-            <p class="no-data">هیچ ویزیتی در این بازه زمانی ثبت نشده است.</p>
+            <p class="no-data">😕 هیچ ویزیتی در این بازه زمانی ثبت نشده است.</p>
             {% endif %}
         </section>
     </div>

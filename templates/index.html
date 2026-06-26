@@ -8,25 +8,19 @@
 </head>
 <body>
     <div class="container">
-        <!-- هدر با لوگو -->
         <header>
             <div class="logo-container">
-                <img src="{{ url_for('static', filename='logo.jpg') }}" alt="لوگو درمانکده" class="logo">
-                <div>
-                    <h1>🏥 درمانکده سنتی بانوان</h1>
-                    <h2>👩⚕️ هاله رستمی</h2>
-                </div>
+                <h1>🌿 درمانکده سنتی بانوان</h1>
+                <h2>👩⚕️ هاله رستمی</h2>
             </div>
         </header>
 
-        <!-- درآمد کل -->
         <div class="total-income">
             <p>💰 درآمد کل: <span>{{ total_income|default(0) }}</span> تومان</p>
         </div>
 
-        <!-- بخش ثبت بیمار -->
         <section class="add-patient">
-            <h3>➕ ثبت بیمار</h3>
+            <h3>➕ ثبت بیمار جدید</h3>
             <form action="{{ url_for('add_patient') }}" method="POST">
                 <div class="form-row">
                     <input type="text" name="name" placeholder="نام بیمار" required>
@@ -37,15 +31,13 @@
             </form>
         </section>
 
-        <!-- گزارش درآمد -->
         <section class="income-report-section">
             <h3>📊 گزارش درآمد بازه‌ای</h3>
-            <a href="{{ url_for('income_report') }}" class="btn-report">ورود به صفحه گزارش درآمد</a>
+            <a href="{{ url_for('income_report') }}" class="btn-report">📈 ورود به صفحه گزارش درآمد</a>
         </section>
 
-        <!-- لیست بیماران -->
         <section class="patients-list">
-            <h3>👥 بیماران</h3>
+            <h3>👥 لیست بیماران</h3>
             <table>
                 <thead>
                     <tr>
@@ -62,8 +54,8 @@
                         <td>{{ patient.name }}</td>
                         <td>{{ patient.phone }}</td>
                         <td>{{ patient.disease }}</td>
-                        <td><a href="{{ url_for('profile', patient_id=patient.id) }}">👁</a></td>
-                        <td><a href="{{ url_for('delete_patient', patient_id=patient.id) }}" onclick="return confirm('آیا مطمئن هستید؟')">🗑</a></td>
+                        <td><a href="{{ url_for('profile', patient_id=patient.id) }}" class="icon-link">👁</a></td>
+                        <td><a href="{{ url_for('delete_patient', patient_id=patient.id) }}" class="icon-link delete" onclick="return confirm('آیا مطمئن هستید؟')">🗑</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
