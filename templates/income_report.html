@@ -13,25 +13,45 @@
             <h1>📊 گزارش درآمد بازه‌ای</h1>
         </header>
 
+<<<<<<< HEAD
         <section class="income-filter">
             <h3>📅 انتخاب بازه زمانی (تاریخ شمسی)</h3>
+=======
+        <!-- فرم انتخاب بازه زمانی -->
+        <section class="income-filter">
+            <h3>انتخاب بازه زمانی (تاریخ شمسی)</h3>
+>>>>>>> fbea6f1e53eae5b252d4c87a3680ba82a0aab7fb
             <form method="POST" action="{{ url_for('income_report') }}">
                 <div class="form-row">
                     <input type="text" name="start_date" placeholder="از تاریخ (مثال: 1405/01/01)" value="{{ start_date }}" required>
                     <input type="text" name="end_date" placeholder="تا تاریخ (مثال: 1405/12/29)" value="{{ end_date }}" required>
+<<<<<<< HEAD
                     <button type="submit">🔍 نمایش گزارش</button>
+=======
+                    <button type="submit">نمایش گزارش</button>
+>>>>>>> fbea6f1e53eae5b252d4c87a3680ba82a0aab7fb
                 </div>
             </form>
         </section>
 
+<<<<<<< HEAD
         <section class="income-result">
             <h3>📈 نتایج گزارش</h3>
+=======
+        <!-- نمایش نتایج -->
+        <section class="income-result">
+            <h3>نتایج گزارش</h3>
+>>>>>>> fbea6f1e53eae5b252d4c87a3680ba82a0aab7fb
             <div class="total-income">
                 <p>💰 درآمد کل در بازه انتخاب‌شده: <span>{{ total_income|default(0) }}</span> تومان</p>
             </div>
 
             {% if visits %}
+<<<<<<< HEAD
             <h4>📋 لیست ویزیت‌ها در این بازه</h4>
+=======
+            <h4>لیست ویزیت‌ها در این بازه</h4>
+>>>>>>> fbea6f1e53eae5b252d4c87a3680ba82a0aab7fb
             <table>
                 <thead>
                     <tr>
@@ -53,7 +73,11 @@
                 </tbody>
             </table>
             {% elif start_date and end_date %}
+<<<<<<< HEAD
             <p class="no-data">😕 هیچ ویزیتی در این بازه زمانی ثبت نشده است.</p>
+=======
+            <p class="no-data">هیچ ویزیتی در این بازه زمانی ثبت نشده است.</p>
+>>>>>>> fbea6f1e53eae5b252d4c87a3680ba82a0aab7fb
             {% endif %}
         </section>
     </div>

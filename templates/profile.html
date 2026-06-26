@@ -13,8 +13,14 @@
             <h1>👤 پروفایل بیمار</h1>
         </header>
 
+<<<<<<< HEAD
         <section class="patient-info">
             <h3>📋 اطلاعات بیمار</h3>
+=======
+        <!-- اطلاعات بیمار -->
+        <section class="patient-info">
+            <h3>اطلاعات بیمار</h3>
+>>>>>>> fbea6f1e53eae5b252d4c87a3680ba82a0aab7fb
             <div class="info-grid">
                 <div><strong>نام:</strong> {{ patient.name }}</div>
                 <div><strong>تلفن:</strong> {{ patient.phone }}</div>
@@ -23,6 +29,10 @@
             </div>
         </section>
 
+<<<<<<< HEAD
+=======
+        <!-- ثبت ویزیت جدید با فیلد عملیات یا نسخه -->
+>>>>>>> fbea6f1e53eae5b252d4c87a3680ba82a0aab7fb
         <section class="add-visit">
             <h3>➕ ثبت ویزیت جدید</h3>
             <form action="{{ url_for('add_visit') }}" method="POST">
@@ -41,6 +51,10 @@
             </form>
         </section>
 
+<<<<<<< HEAD
+=======
+        <!-- لیست ویزیت‌ها -->
+>>>>>>> fbea6f1e53eae5b252d4c87a3680ba82a0aab7fb
         <section class="visits-list">
             <h3>📋 تاریخچه ویزیت‌ها</h3>
             {% if visits %}
@@ -61,13 +75,21 @@
                         <td>{{ visit.reason }}</td>
                         <td>{{ visit.treatment }}</td>
                         <td>{{ visit.cost }}</td>
+<<<<<<< HEAD
                         <td><a href="{{ url_for('delete_visit', visit_id=visit.id, patient_id=patient.id) }}" class="icon-link delete" onclick="return confirm('آیا مطمئن هستید؟')">🗑</a></td>
+=======
+                        <td><a href="{{ url_for('delete_visit', visit_id=visit.id, patient_id=patient.id) }}" onclick="return confirm('آیا مطمئن هستید؟')">🗑</a></td>
+>>>>>>> fbea6f1e53eae5b252d4c87a3680ba82a0aab7fb
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
             {% else %}
+<<<<<<< HEAD
             <p class="no-data">😊 هیچ ویزیتی برای این بیمار ثبت نشده است.</p>
+=======
+            <p class="no-data">هیچ ویزیتی برای این بیمار ثبت نشده است.</p>
+>>>>>>> fbea6f1e53eae5b252d4c87a3680ba82a0aab7fb
             {% endif %}
         </section>
     </div>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>ثبت ویزیت</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card summary">
+<h2>🩺 ثبت ویزیت بیمار</h2>
+</div>
+
+<div class="card">
+<p>نام: {{p.name}}</p>
+<p>تلفن: {{p.phone}}</p>
+</div>
+
+<div class="card">
+<form method="POST" action="/add_visit">
+
+<input type="hidden" name="phone" value="{{p.phone}}">
+
+<input name="reason" placeholder="علت مراجعه">
+<input name="fee" placeholder="هزینه">
+<button>ثبت ویزیت</button>
+
+</form>
+</div>
+
+<a href="/">⬅ بازگشت</a>
+
+</div>
+
+</body>
+</html>
