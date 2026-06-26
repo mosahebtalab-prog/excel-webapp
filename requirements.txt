@@ -1,18 +1,5 @@
-<<<<<<< HEAD
 Flask==2.3.3
 supabase==2.0.4
 jdatetime==4.1.0
 gunicorn==21.2.0
 python-dotenv==1.0.0
-=======
-<<<<<<< HEAD
-Flask==2.3.3
-openpyxl==3.1.2
-jdatetime==4.1.0
-=======
-Flask==2.3.3
-openpyxl==3.1.2
-jdatetime==4.1.0
->>>>>>> 0d63a31192f0107b2a69d8b1f117c37ef42289fe
-gunicorn==21.2.0
->>>>>>> fbea6f1e53eae5b252d4c87a3680ba82a0aab7fb
